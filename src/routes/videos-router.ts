@@ -208,9 +208,10 @@ videosRouter.put(
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
             foundVideo.minAgeRestriction = foundVideo.minAgeRestriction || minAgeRestriction;
-            foundVideo.publicationDate = foundVideo.publicationDate || tomorrow;
+            foundVideo.publicationDate = publicationDate || tomorrow;
             foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
             res.status(204).send(foundVideo);
+            return;
         } else res.status(400).send(errorsObject);
 
 
