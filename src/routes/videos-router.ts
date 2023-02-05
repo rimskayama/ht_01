@@ -20,6 +20,16 @@ type VideosType = {
 };
 
 type availableResolutions = string[];
+const Resolutions = [
+    "P144",
+    "P240",
+    "P360",
+    "P480",
+    "P720",
+    "P1080",
+    "P1440",
+    "P2160",
+];
 
 const db: { videos: VideosType[] } = {
     videos: [
@@ -45,7 +55,11 @@ const errMessage = {
     ]
 }
 
-const currentDate =  new Date().toISOString();
+const today =  new Date().toISOString();
+let publicationDate = new Date(today)
+publicationDate.setDate(publicationDate.getDate() + 1);
+const tomorrow = publicationDate.toISOString();
+const checkResolution = (arr1: string[], arr2: string[]) => arr2.every(r => arr1.includes(r));
 
 export const videosRouter = Router({})
 
@@ -81,7 +95,7 @@ videosRouter.get(
 );
 
 //POST
-videosRouter.post("/", (req: RequestWithBody<CreateVideoInputModel>, res: Response<VideoViewModel>) => {
+videosRouter.post("/", (req: RequestWithBody<CreateVideoInputModel>, res: Response) => {
 
     const title = req.body.title;
     const author = req.body.author;
@@ -95,37 +109,61 @@ videosRouter.post("/", (req: RequestWithBody<CreateVideoInputModel>, res: Respon
         author: author,
         canBeDownloaded: canBeDownloaded || false,
         minAgeRestriction: minAgeRestriction || null,
-        createdAt: currentDate,
-        publicationDate: currentDate,
+        createdAt: today,
+        publicationDate: tomorrow,
         availableResolutions: availableResolutions || ["P720"],
     };
 
 
-    db.videos.push(createdVideo);
-    res.status(201).json(createdVideo);
+    if (author.length > 20 || (title.length > 40) || (1 < minAgeRestriction && minAgeRestriction > 18) || checkResolution (availableResolutions, Resolutions) ) {
+        res.status(400).send(errMessage);
+    } else {
+        db.videos.push(createdVideo);
+        res.status(201).json(createdVideo);
+    }
+
 })
 
 //PUT
 videosRouter.put(
-    "/courses/:id",
+    "/videos/:id",
     (
         req: RequestWithParamsAndBody<URIParamsVideoIDModel, UpdateVideoInputModel>,
         res
     ) => {
-        if (!req.body.title) {
-            res.sendStatus(400);
-            return;
-        }
+
+        const title = req.body.title;
+        const author = req.body.author;
+        const availableResolutions = req.body.availableResolutions;
+        let canBeDownloaded = req.body.canBeDownloaded;
+        let minAgeRestriction = req.body.minAgeRestriction;
+        let publicationDate = req.body.publicationDate;
+
 
         const foundVideo = db.videos.find((c) => c.id === +req.params.id);
         if (!foundVideo) {
             res.sendStatus(404);
             return;
+        } else if
+        (author.length > 20
+            || (title.length > 40)
+            || (minAgeRestriction !== null && 1 <= minAgeRestriction && minAgeRestriction <= 18)
+            || checkResolution (availableResolutions, Resolutions) ) {
+            res.status(400).send(errMessage);
+        } else {
+            const updatedVideo: VideosType = {
+                id: +new Date(),
+                title: title,
+                author: author,
+                canBeDownloaded: canBeDownloaded || false,
+                minAgeRestriction: minAgeRestriction || null,
+                createdAt: today,
+                publicationDate: publicationDate || tomorrow,
+                availableResolutions: availableResolutions || ["P720"],
+            };
+            res.sendStatus(204).send(updatedVideo)
+
         }
-
-        foundVideo.title = req.body.title;
-
-        res.sendStatus(204);
     }
 );
 
