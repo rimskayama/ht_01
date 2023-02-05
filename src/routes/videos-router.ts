@@ -169,6 +169,7 @@ videosRouter.put(
         const availableResolutions = req.body.availableResolutions;
         const canBeDownloaded = req.body.canBeDownloaded;
         const minAgeRestriction = req.body.minAgeRestriction;
+        const publicationDate = req.body.publicationDate;
 
         let foundVideo = db.videos.find((c) => c.id === +req.params.id);
         if (!foundVideo) {
@@ -206,8 +207,8 @@ videosRouter.put(
             foundVideo.title = title;
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
-            foundVideo.minAgeRestriction = minAgeRestriction || foundVideo.minAgeRestriction;
-            foundVideo.publicationDate = tomorrow || foundVideo.publicationDate;
+            foundVideo.minAgeRestriction = foundVideo.minAgeRestriction || minAgeRestriction;
+            foundVideo.publicationDate = foundVideo.publicationDate || tomorrow;
             foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
             res.status(204).send(foundVideo);
         } else res.status(400).send(errorsObject);
