@@ -45,7 +45,7 @@ exports.videosRouter.get("/", (req, res) => {
     if (req.query.title) {
         foundVideos = foundVideos.filter((v) => v.title.indexOf(req.query.title) > -1);
     }
-    res.json(foundVideos);
+    res.status(200).json(foundVideos);
 });
 exports.videosRouter.get("/:id", (req, res) => {
     const foundVideo = db.videos.find((c) => c.id === +req.params.id);
@@ -116,5 +116,11 @@ exports.videosRouter.put("/videos/:id", (req, res) => {
 //DELETE
 exports.videosRouter.delete("/:id", (req, res) => {
     db.videos = db.videos.filter((c) => c.id !== +req.params.id);
+    res.sendStatus(204);
+});
+exports.videosRouter.delete("/", (req, res) => {
+    while (db.videos.length > 0) {
+        db.videos.splice(0, db.videos.length);
+    }
     res.sendStatus(204);
 });

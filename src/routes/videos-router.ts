@@ -75,7 +75,7 @@ videosRouter.get(
                 (v) => v.title.indexOf(req.query.title) > -1
             );
         }
-        res.json(foundVideos)
+        res.status(200).json(foundVideos)
     }
 )
 
@@ -175,3 +175,11 @@ videosRouter.delete(
         res.sendStatus(204);
     }
 );
+
+videosRouter.delete("/", (req: Request, res: Response) => {
+    while (db.videos.length > 0) {
+        db.videos.splice(0, db.videos.length);
+    }
+    res.sendStatus(204);
+})
+
