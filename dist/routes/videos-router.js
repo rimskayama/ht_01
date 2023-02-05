@@ -17,7 +17,6 @@ const db = {
 };
 const errorsObject = { errorsMessages: [] };
 const errorsArray = errorsObject.errorsMessages;
-let errorsMessages = [];
 const titleError = {
     message: "error",
     field: "title"
@@ -128,18 +127,17 @@ exports.videosRouter.put("/:id", (req, res) => {
     if (!availableResolutions || !checkResolution(Resolutions, availableResolutions)) {
         errorsArray.push(availableResolutionsError);
     }
-    foundVideo.title = title;
-    foundVideo.author = author;
-    foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
-    foundVideo.minAgeRestriction = minAgeRestriction || foundVideo.minAgeRestriction;
-    foundVideo.publicationDate = tomorrow;
-    foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
     if (errorsArray.length === 0) {
-        db.videos.push(foundVideo);
+        foundVideo.title = title;
+        foundVideo.author = author;
+        foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
+        foundVideo.minAgeRestriction = minAgeRestriction || foundVideo.minAgeRestriction;
+        foundVideo.publicationDate = tomorrow;
+        foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
         res.status(204).send(foundVideo);
-        return;
     }
-    res.status(400).send(errorsObject);
+    else
+        res.status(400).send(errorsObject);
 });
 //DELETE
 exports.videosRouter.delete("/:id", (req, res) => {

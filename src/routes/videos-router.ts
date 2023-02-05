@@ -42,8 +42,6 @@ type errorMessageType = {
     field: string;
 };
 
-
-let errorsMessages: errorMessageType[] = [];
 const titleError = {
             message: "error",
             field: "title"
@@ -196,20 +194,17 @@ videosRouter.put(
             errorsArray.push(availableResolutionsError);
         }
 
-        foundVideo.title = title;
-        foundVideo.author = author;
-        foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
-        foundVideo.minAgeRestriction = minAgeRestriction || foundVideo.minAgeRestriction;
-        foundVideo.publicationDate = tomorrow;
-        foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
-    
-
-        if (errorsArray.length === 0) {
-            db.videos.push(foundVideo);
+        if (errorsArray.length === 0)  {
+            foundVideo.title = title;
+            foundVideo.author = author;
+            foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
+            foundVideo.minAgeRestriction = minAgeRestriction || foundVideo.minAgeRestriction;
+            foundVideo.publicationDate = tomorrow;
+            foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
             res.status(204).send(foundVideo);
-            return;
-        }
-        res.status(400).send(errorsObject);
+        } else res.status(400).send(errorsObject);
+
+
 
     })
 
