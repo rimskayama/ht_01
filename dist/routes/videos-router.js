@@ -125,7 +125,7 @@ exports.videosRouter.put("/:id", (req, res) => {
     if (minAgeRestriction && (1 > minAgeRestriction && minAgeRestriction > 18)) {
         errorsArray.push(minAgeRestrictionError);
     }
-    if (availableResolutions && !checkResolution(Resolutions, availableResolutions)) {
+    if (!availableResolutions || !checkResolution(Resolutions, availableResolutions)) {
         errorsArray.push(availableResolutionsError);
     }
     foundVideo = {
@@ -140,7 +140,7 @@ exports.videosRouter.put("/:id", (req, res) => {
     };
     if (errorsArray.length === 0) {
         db.videos.push(foundVideo);
-        res.status(201).send(foundVideo);
+        res.status(204).send(foundVideo);
         return;
     }
     res.status(400).send(errorsObject);
