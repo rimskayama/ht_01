@@ -65,6 +65,10 @@ const minAgeRestrictionError = {
     message: "error",
     field: "minAgeRestriction",
 };
+const publicationDateError = {
+    message: "error",
+    field: "publicationDate",
+};
 
 
 const today =  new Date().toISOString();
@@ -193,13 +197,17 @@ videosRouter.put(
         if (!availableResolutions || !checkResolution(Resolutions, availableResolutions)) {
             errorsArray.push(availableResolutionsError);
         }
+        if (publicationDate && typeof publicationDate !== 'string') {
+            errorsArray.push(publicationDateError);
+        }
+
 
         if (errorsArray.length === 0)  {
             foundVideo.title = title;
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded || foundVideo.canBeDownloaded;
             foundVideo.minAgeRestriction = minAgeRestriction || foundVideo.minAgeRestriction;
-            foundVideo.publicationDate = tomorrow;
+            foundVideo.publicationDate = tomorrow || foundVideo.publicationDate;
             foundVideo.availableResolutions = availableResolutions || foundVideo.availableResolutions;
             res.status(204).send(foundVideo);
         } else res.status(400).send(errorsObject);
