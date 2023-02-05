@@ -3,7 +3,7 @@ import {videosRouter} from "./routes/videos-router";
 import {testingRouter} from "./routes/testing-router";
 
 export const app = express();
-const port = 3002;
+const port = 3001;
 
 
 app.use(express.json())

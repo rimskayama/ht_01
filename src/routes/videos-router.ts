@@ -18,7 +18,7 @@ type VideosType = {
     availableResolutions: availableResolutions;
 };
 
-type availableResolutions = string[];
+type availableResolutions = string[] | null;
 const Resolutions = [
     "P144",
     "P240",
@@ -34,41 +34,50 @@ const db: { videos: VideosType[] } = {
     videos: [ ]
 }
 
-const errMessages = {
-    "title": [
-        {
-            "message": "error",
-            "field": "title"
+const errorsObject = { errorsMessages: [] };
+const errorsArray: errorMessageType[] = errorsObject.errorsMessages;
+
+type errorMessageType = {
+    message: string;
+    field: string;
+};
+
+
+let errorsMessages: errorMessageType[] = [];
+const titleError = {
+            message: "error",
+            field: "title"
         }
-    ],
-    "author": [
-        {
-            "message": "error",
-            "field": "author"
+
+const authorError = {
+            message: "error",
+            field: "author"
         }
-    ],
-    "minAgeRestriction": [
-        {
-            "message": "error",
-            "field": "minAgeRestriction"
+
+const availableResolutionsError = {
+            message: "error",
+            field: "availableResolutions"
         }
-    ],
-    "availableResolutions": [
-        {
-            "message": "error",
-            "field": "availableResolutions"
-        }
-    ]
-}
+const canBeDownloadedError = {
+    message: "error",
+    field: "canBeDownloaded",
+};
+
+const minAgeRestrictionError = {
+    message: "error",
+    field: "minAgeRestriction",
+};
+
 
 const today =  new Date().toISOString();
-let publicationDate = new Date(today)
+let publicationDate = new Date(today);
 publicationDate.setDate(publicationDate.getDate() + 1);
 const tomorrow = publicationDate.toISOString();
 const checkResolution = (arr1: string[], arr2: string[]) => arr2.every(r => arr1.includes(r));
 
 export const videosRouter = Router({})
 
+//GET
 videosRouter.get(
     "/",
     (
@@ -85,6 +94,7 @@ videosRouter.get(
     }
 )
 
+//GET WITH URI
 videosRouter.get(
     "/:id",
     (
@@ -107,40 +117,42 @@ videosRouter.post(
 
     const title = req.body.title;
     const author = req.body.author;
-    const canBeDownloaded = req.body.canBeDownloaded;
-    const minAgeRestriction = req.body.minAgeRestriction;
     const availableResolutions = req.body.availableResolutions;
 
     const createdVideo: VideosType = {
         id: +new Date(),
         title: title,
         author: author,
-        canBeDownloaded: canBeDownloaded || false,
-        minAgeRestriction: minAgeRestriction || null,
+        canBeDownloaded: false,
+        minAgeRestriction: null,
         createdAt: today,
         publicationDate: tomorrow,
-        availableResolutions: availableResolutions || ["P720"],
+        availableResolutions: availableResolutions ? availableResolutions : null,
     };
 
+    //validation
 
-    if (!title || title.length > 40) {
-        res.status(400).send(errMessages.title);
-    }
-    if (!author || author.length > 20) {
-        res.status(400).send(errMessages.author);
-    }
-    if (1 < minAgeRestriction && minAgeRestriction > 18) {
-        res.status(400).send(errMessages.minAgeRestriction);
-    }
-    if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
-        res.status(400).send(errMessages.availableResolutions)
-    }
-    else {
-        db.videos.push(createdVideo);
-        res.status(201).json(createdVideo);
-    }
+        while (errorsArray.length > 0) {
+            errorsArray.splice(0, errorsArray.length);
+        }
 
-})
+        if (!title || title.length > 40) {
+            errorsArray.push(titleError);
+        }
+        if (!author || author.length > 20) {
+            errorsArray.push(authorError);
+        }
+
+        if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
+            errorsArray.push(availableResolutionsError);
+        }
+
+        if (errorsArray.length === 0) {
+            db.videos.push(createdVideo);
+            res.status(201).send(createdVideo);
+            return;
+        } else res.status(400).send(errorsObject);
+    })
 
 //PUT
 videosRouter.put(
@@ -153,45 +165,56 @@ videosRouter.put(
         const title = req.body.title;
         const author = req.body.author;
         const availableResolutions = req.body.availableResolutions;
-        let canBeDownloaded = req.body.canBeDownloaded;
-        let minAgeRestriction = req.body.minAgeRestriction;
-        let publicationDate = req.body.publicationDate;
+        const canBeDownloaded = req.body.canBeDownloaded;
+        const minAgeRestriction = req.body.minAgeRestriction;
 
-
-        const foundVideo = db.videos.find((c) => c.id === +req.params.id);
+        let foundVideo = db.videos.find((c) => c.id === +req.params.id);
         if (!foundVideo) {
             res.sendStatus(404);
             return;
         }
 
-        if (!title || title.length > 40) {
-            res.status(400).send(errMessages.title);
-        }
-        if (!author || author.length > 20) {
-            res.status(400).send(errMessages.author);
-        }
-        if (minAgeRestriction !== null && 1 < minAgeRestriction && minAgeRestriction > 18) {
-            res.status(400).send(errMessages.minAgeRestriction);
-        }
-        if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
-            res.status(400).send(errMessages.availableResolutions)
-        }
-        else {
-            const updatedVideo: VideosType = {
-                id: +new Date(),
-                title: title,
-                author: author,
-                canBeDownloaded: canBeDownloaded || false,
-                minAgeRestriction: minAgeRestriction || null,
-                createdAt: today,
-                publicationDate: publicationDate || tomorrow,
-                availableResolutions: availableResolutions || ["P720"],
-            };
-            res.sendStatus(204).send(updatedVideo)
+        //validation
 
+        while (errorsArray.length > 0) {
+            errorsArray.splice(0, errorsArray.length);
         }
-    }
-);
+        if (!title || title.length > 40) {
+            errorsArray.push(titleError);
+        }
+
+        if (!author || author.length > 20) {
+            errorsArray.push(authorError);
+        }
+        if (canBeDownloaded && typeof canBeDownloaded !== 'boolean') {
+            errorsArray.push(canBeDownloadedError);
+        }
+        if (minAgeRestriction && (1 > minAgeRestriction && minAgeRestriction > 18)) {
+            errorsArray.push(minAgeRestrictionError);
+        }
+        if (availableResolutions && !checkResolution(availableResolutions, Resolutions)) {
+            errorsArray.push(availableResolutionsError);
+        }
+
+        foundVideo = {
+            id: foundVideo.id,
+            title: title,
+            author: author,
+            canBeDownloaded: canBeDownloaded || foundVideo.canBeDownloaded,
+            minAgeRestriction: minAgeRestriction || foundVideo.minAgeRestriction,
+            createdAt: foundVideo.createdAt,
+            publicationDate: tomorrow,
+            availableResolutions: availableResolutions || foundVideo.availableResolutions,
+        };
+
+        if (errorsArray.length === 0) {
+            db.videos.push(foundVideo);
+            res.status(201).send(foundVideo);
+            return;
+        }
+        res.status(400).send(errorsObject);
+
+    })
 
 //DELETE
 videosRouter.delete(
