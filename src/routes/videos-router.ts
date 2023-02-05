@@ -32,19 +32,7 @@ const Resolutions = [
 ];
 
 const db: { videos: VideosType[] } = {
-    videos: [
-        {
-            "id": 0,
-            "title": "string",
-            "author": "string",
-            "canBeDownloaded": true,
-            "minAgeRestriction": null,
-            "createdAt": "2023-02-01T18:24:57.804Z",
-            "publicationDate": "2023-02-01T18:24:57.804Z",
-            "availableResolutions": ["P144"]
-
-        }
-    ]}
+    videos: []}
 
 const errMessage = {
     "errorsMessages": [
@@ -87,7 +75,7 @@ videosRouter.get(
     ) => {
         const foundVideo = db.videos.find((c) => c.id === +req.params.id);
         if (!foundVideo) {
-            res.status(404).send(errMessage);
+            res.sendStatus(404).send(errMessage);
             return;
         }
         res.json(foundVideo);
@@ -171,10 +159,15 @@ videosRouter.put(
 videosRouter.delete(
     "/:id",
     (req: RequestWithParams<URIParamsVideoIDModel>, res) => {
-        db.videos = db.videos.filter((c) => c.id !== +req.params.id);
-        res.sendStatus(204);
-    }
-);
+        for (let i = 0; i < db.videos.length; i++) {
+            if (db.videos[i].id === +req.params.id) {
+                db.videos.splice(i, 1);
+                res.sendStatus(204);
+                return;
+            }
+        }
+        res.sendStatus(404);
+    });
 
 videosRouter.delete("/", (req: Request, res: Response) => {
     while (db.videos.length > 0) {
