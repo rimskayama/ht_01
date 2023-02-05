@@ -187,7 +187,7 @@ videosRouter.put(
         if (canBeDownloaded && typeof canBeDownloaded !== 'boolean') {
             errorsArray.push(canBeDownloadedError);
         }
-        if (minAgeRestriction && (1 > minAgeRestriction && minAgeRestriction > 18)) {
+        if (minAgeRestriction && (1 > minAgeRestriction || minAgeRestriction > 18)) {
             errorsArray.push(minAgeRestrictionError);
         }
         if (!availableResolutions || !checkResolution(Resolutions, availableResolutions)) {
