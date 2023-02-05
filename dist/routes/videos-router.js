@@ -86,7 +86,7 @@ exports.videosRouter.post("/", (req, res) => {
     if (!author || author.length > 20) {
         errorsArray.push(authorError);
     }
-    if (!availableResolutions || checkResolution(availableResolutions, Resolutions)) {
+    if (!availableResolutions || !checkResolution(Resolutions, availableResolutions)) {
         errorsArray.push(availableResolutionsError);
     }
     if (errorsArray.length === 0) {
@@ -125,7 +125,7 @@ exports.videosRouter.put("/:id", (req, res) => {
     if (minAgeRestriction && (1 > minAgeRestriction && minAgeRestriction > 18)) {
         errorsArray.push(minAgeRestrictionError);
     }
-    if (availableResolutions && !checkResolution(availableResolutions, Resolutions)) {
+    if (availableResolutions && !checkResolution(Resolutions, availableResolutions)) {
         errorsArray.push(availableResolutionsError);
     }
     foundVideo = {

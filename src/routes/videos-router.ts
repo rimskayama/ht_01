@@ -143,7 +143,7 @@ videosRouter.post(
             errorsArray.push(authorError);
         }
 
-        if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
+        if (!availableResolutions || !checkResolution (Resolutions, availableResolutions)) {
             errorsArray.push(availableResolutionsError);
         }
 
@@ -192,7 +192,7 @@ videosRouter.put(
         if (minAgeRestriction && (1 > minAgeRestriction && minAgeRestriction > 18)) {
             errorsArray.push(minAgeRestrictionError);
         }
-        if (availableResolutions && !checkResolution(availableResolutions, Resolutions)) {
+        if (availableResolutions && !checkResolution(Resolutions, availableResolutions)) {
             errorsArray.push(availableResolutionsError);
         }
 
