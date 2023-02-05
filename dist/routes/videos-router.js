@@ -42,7 +42,9 @@ const today = new Date().toISOString();
 let publicationDate = new Date(today);
 publicationDate.setDate(publicationDate.getDate() + 1);
 const tomorrow = publicationDate.toISOString();
-const checkResolution = (arr1, arr2) => arr2.every(r => arr1.includes(r));
+const checkResolution = (arr1, arr2) => {
+    return arr2.every(r => arr1.includes(r));
+};
 exports.videosRouter = (0, express_1.Router)({});
 //GET
 exports.videosRouter.get("/", (req, res) => {
@@ -86,7 +88,7 @@ exports.videosRouter.post("/", (req, res) => {
     if (!author || author.length > 20) {
         errorsArray.push(authorError);
     }
-    if (!availableResolutions || checkResolution(availableResolutions, Resolutions)) {
+    if (availableResolutions || checkResolution(availableResolutions, Resolutions)) {
         errorsArray.push(availableResolutionsError);
     }
     if (errorsArray.length === 0) {
@@ -143,7 +145,8 @@ exports.videosRouter.put("/:id", (req, res) => {
         res.status(201).send(foundVideo);
         return;
     }
-    res.status(400).send(errorsObject);
+    else
+        res.status(400).send(errorsObject);
 });
 //DELETE
 exports.videosRouter.delete("/:id", (req, res) => {

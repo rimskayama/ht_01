@@ -73,7 +73,9 @@ const today =  new Date().toISOString();
 let publicationDate = new Date(today);
 publicationDate.setDate(publicationDate.getDate() + 1);
 const tomorrow = publicationDate.toISOString();
-const checkResolution = (arr1: string[], arr2: string[]) => arr2.every(r => arr1.includes(r));
+const checkResolution = (arr1: string[], arr2: string[]) => {
+    return arr2.every(r => arr1.includes(r));
+}
 
 export const videosRouter = Router({})
 
@@ -143,7 +145,7 @@ videosRouter.post(
             errorsArray.push(authorError);
         }
 
-        if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
+        if (availableResolutions || checkResolution (availableResolutions, Resolutions)) {
             errorsArray.push(availableResolutionsError);
         }
 
@@ -211,8 +213,7 @@ videosRouter.put(
             db.videos.push(foundVideo);
             res.status(201).send(foundVideo);
             return;
-        }
-        res.status(400).send(errorsObject);
+        } else res.status(400).send(errorsObject);
 
     })
 
