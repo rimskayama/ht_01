@@ -31,13 +31,32 @@ const Resolutions = [
 ];
 
 const db: { videos: VideosType[] } = {
-    videos: []}
+    videos: [ ]
+}
 
-const errMessage = {
-    "errorsMessages": [
+const errMessages = {
+    "title": [
         {
-            "message": "string",
-            "field": "string"
+            "message": "error",
+            "field": "title"
+        }
+    ],
+    "author": [
+        {
+            "message": "error",
+            "field": "author"
+        }
+    ],
+    "minAgeRestriction": [
+        {
+            "message": "error",
+            "field": "minAgeRestriction"
+        }
+    ],
+    "availableResolutions": [
+        {
+            "message": "error",
+            "field": "availableResolutions"
         }
     ]
 }
@@ -74,7 +93,7 @@ videosRouter.get(
     ) => {
         const foundVideo = db.videos.find((c) => c.id === +req.params.id);
         if (!foundVideo) {
-            res.sendStatus(404).send(errMessage);
+            res.sendStatus(404);
             return;
         }
         res.json(foundVideo);
@@ -104,12 +123,19 @@ videosRouter.post(
     };
 
 
-    if (!author || author.length > 20
-        || !title || title.length > 40
-        || 1 < minAgeRestriction && minAgeRestriction > 18
-        || !availableResolutions || checkResolution (availableResolutions, Resolutions)) {
-        res.status(400).send(errMessage);
-    } else {
+    if (!title || title.length > 40) {
+        res.status(400).send(errMessages.title);
+    }
+    if (!author || author.length > 20) {
+        res.status(400).send(errMessages.author);
+    }
+    if (1 < minAgeRestriction && minAgeRestriction > 18) {
+        res.status(400).send(errMessages.minAgeRestriction);
+    }
+    if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
+        res.status(400).send(errMessages.availableResolutions)
+    }
+    else {
         db.videos.push(createdVideo);
         res.status(201).json(createdVideo);
     }
@@ -137,12 +163,20 @@ videosRouter.put(
             res.sendStatus(404);
             return;
         }
-        if ((!author || author.length > 20)
-            || (!title || title.length > 40)
-            || (minAgeRestriction !== null && 1 <= minAgeRestriction && minAgeRestriction <= 18)
-            || (!availableResolutions || checkResolution (availableResolutions, Resolutions))) {
-            res.status(400).send(errMessage);
-        } else {
+
+        if (!title || title.length > 40) {
+            res.status(400).send(errMessages.title);
+        }
+        if (!author || author.length > 20) {
+            res.status(400).send(errMessages.author);
+        }
+        if (minAgeRestriction !== null && 1 < minAgeRestriction && minAgeRestriction > 18) {
+            res.status(400).send(errMessages.minAgeRestriction);
+        }
+        if (!availableResolutions || checkResolution (availableResolutions, Resolutions)) {
+            res.status(400).send(errMessages.availableResolutions)
+        }
+        else {
             const updatedVideo: VideosType = {
                 id: +new Date(),
                 title: title,
