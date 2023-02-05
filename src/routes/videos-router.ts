@@ -7,7 +7,6 @@ import {URIParamsVideoIDModel} from "../models/URIParamsVideoIDModel";
 import {CreateVideoInputModel} from "../models/CreateVideoInputModel";
 import {UpdateVideoInputModel} from "../models/UpdateVideoInputModel";
 
-
 type VideosType = {
     id: number;
     title: string;
@@ -83,7 +82,9 @@ videosRouter.get(
 );
 
 //POST
-videosRouter.post("/", (req: RequestWithBody<CreateVideoInputModel>, res: Response) => {
+videosRouter.post(
+    "/",
+    (req: RequestWithBody<CreateVideoInputModel>, res: Response) => {
 
     const title = req.body.title;
     const author = req.body.author;
@@ -103,7 +104,10 @@ videosRouter.post("/", (req: RequestWithBody<CreateVideoInputModel>, res: Respon
     };
 
 
-    if (author.length > 20 || (title.length > 40) || (1 < minAgeRestriction && minAgeRestriction > 18) || checkResolution (availableResolutions, Resolutions) ) {
+    if (!author || author.length > 20
+        || !title || title.length > 40
+        || 1 < minAgeRestriction && minAgeRestriction > 18
+        || !availableResolutions || checkResolution (availableResolutions, Resolutions)) {
         res.status(400).send(errMessage);
     } else {
         db.videos.push(createdVideo);
@@ -114,7 +118,7 @@ videosRouter.post("/", (req: RequestWithBody<CreateVideoInputModel>, res: Respon
 
 //PUT
 videosRouter.put(
-    "/videos/:id",
+    "/:id",
     (
         req: RequestWithParamsAndBody<URIParamsVideoIDModel, UpdateVideoInputModel>,
         res
@@ -132,11 +136,11 @@ videosRouter.put(
         if (!foundVideo) {
             res.sendStatus(404);
             return;
-        } else if
-        (author.length > 20
-            || (title.length > 40)
+        }
+        if ((!author || author.length > 20)
+            || (!title || title.length > 40)
             || (minAgeRestriction !== null && 1 <= minAgeRestriction && minAgeRestriction <= 18)
-            || checkResolution (availableResolutions, Resolutions) ) {
+            || (!availableResolutions || checkResolution (availableResolutions, Resolutions))) {
             res.status(400).send(errMessage);
         } else {
             const updatedVideo: VideosType = {
@@ -169,7 +173,7 @@ videosRouter.delete(
         res.sendStatus(404);
     });
 
-videosRouter.delete("/", (req: Request, res: Response) => {
+videosRouter.delete("/", (req: RequestWithParams<URIParamsVideoIDModel>, res: Response) => {
     while (db.videos.length > 0) {
         db.videos.splice(0, db.videos.length);
     }

@@ -61,7 +61,10 @@ exports.videosRouter.post("/", (req, res) => {
         publicationDate: tomorrow,
         availableResolutions: availableResolutions || ["P720"],
     };
-    if (author.length > 20 || (title.length > 40) || (1 < minAgeRestriction && minAgeRestriction > 18) || checkResolution(availableResolutions, Resolutions)) {
+    if (!author || author.length > 20
+        || !title || title.length > 40
+        || 1 < minAgeRestriction && minAgeRestriction > 18
+        || !availableResolutions || checkResolution(availableResolutions, Resolutions)) {
         res.status(400).send(errMessage);
     }
     else {
@@ -70,7 +73,7 @@ exports.videosRouter.post("/", (req, res) => {
     }
 });
 //PUT
-exports.videosRouter.put("/videos/:id", (req, res) => {
+exports.videosRouter.put("/:id", (req, res) => {
     const title = req.body.title;
     const author = req.body.author;
     const availableResolutions = req.body.availableResolutions;
@@ -82,10 +85,10 @@ exports.videosRouter.put("/videos/:id", (req, res) => {
         res.sendStatus(404);
         return;
     }
-    else if (author.length > 20
-        || (title.length > 40)
+    if ((!author || author.length > 20)
+        || (!title || title.length > 40)
         || (minAgeRestriction !== null && 1 <= minAgeRestriction && minAgeRestriction <= 18)
-        || checkResolution(availableResolutions, Resolutions)) {
+        || (!availableResolutions || checkResolution(availableResolutions, Resolutions))) {
         res.status(400).send(errMessage);
     }
     else {

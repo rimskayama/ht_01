@@ -15,6 +15,9 @@ type VideosType = {
 
 type availableResolutions = string[];
 
+const db: { videos: VideosType[] } = {
+    videos: []}
+
 testingRouter.delete("/all-data", (req: Request, res: Response) => {
     while (db.videos.length > 0) {
         db.videos.splice(0, db.videos.length);
