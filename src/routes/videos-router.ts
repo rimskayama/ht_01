@@ -71,9 +71,9 @@ const publicationDateError = {
 };
 
 
-const today =  new Date().toISOString();
+const today =  new Date();
 let publicationDate = new Date(today);
-publicationDate.setDate(publicationDate.getDate() + 1);
+publicationDate.setDate(today.getDate() + 1);
 const tomorrow = publicationDate.toISOString();
 const checkResolution = (arr1: string[], arr2: string[]) => arr2.every(r => arr1.includes(r));
 
@@ -127,16 +127,15 @@ videosRouter.post(
         author: author,
         canBeDownloaded: false,
         minAgeRestriction: null,
-        createdAt: today,
+        createdAt: today.toISOString(),
         publicationDate: tomorrow,
         availableResolutions: availableResolutions ? availableResolutions : null,
     };
 
     //validation
 
-        while (errorsArray.length > 0) {
-            errorsArray.splice(0, errorsArray.length);
-        }
+
+        errorsArray.splice(0, errorsArray.length);
 
         if (!title || title.length > 40) {
             errorsArray.push(titleError);
@@ -179,9 +178,8 @@ videosRouter.put(
 
         //validation
 
-        while (errorsArray.length > 0) {
-            errorsArray.splice(0, errorsArray.length);
-        }
+        errorsArray.splice(0, errorsArray.length);
+
         if (!title || title.length > 40) {
             errorsArray.push(titleError);
         }
